@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS: OllamaSettings = {
     {
       name: "Summarize selection",
       prompt:
-        "Summarize the text in a view sentences highlighting the key takeaways.",
+        "Summarize the text in a few sentences highlighting the key takeaways.",
     },
     {
       name: "Explain selection",

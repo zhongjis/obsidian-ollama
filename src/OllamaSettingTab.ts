@@ -174,7 +174,7 @@ export class OllamaSettingTab extends PluginSettingTab {
       .addTextArea((text) =>
         text // TODO expand the default size
           .setPlaceholder(
-            "e.g. Summarize the text in a view sentences highlighting the key takeaways."
+            "e.g. Summarize the text in a few sentences highlighting the key takeaways."
           )
           .setValue(command.prompt)
           .onChange(async (value) => {
@@ -260,7 +260,7 @@ export class OllamaSettingTab extends PluginSettingTab {
     }, {} as Record<string, string>);
     // availableModels is stored as a Record<string, string> because that's what addDropdown takes as options
 
-    this.availableModelsAndDefault = { ...this.availableModels, "Default": "Default" };
+    this.availableModelsAndDefault = { "Default": "Default", ...this.availableModels };
   }
 
   // Save handlers
