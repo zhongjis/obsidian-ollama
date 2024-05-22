@@ -56,11 +56,12 @@ export class OllamaSettingTab extends PluginSettingTab {
 
       new Setting(containerEl)
       .setName("Prompt template")
-      .setDesc("Template applied to all command prompts. Use {prompt} to specify where the command prompt should be inserted when executing a command.")
+      .setDesc("The template parameter passed to the model. Check your model's documentation for the correct format.")
       .addTextArea((text) =>
         text
           .setPlaceholder(
-            "e.g. Act as a writer. {prompt} Output only the text and nothing else, do not chat, no preamble, get to the point."
+            `Example llama3 template:
+${DEFAULT_SETTINGS.promptTemplate}}`
           )
           .setValue(this.plugin.settings.promptTemplate)
           .onChange(async (value) => {

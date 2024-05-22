@@ -2,8 +2,12 @@ import { OllamaSettings } from "model/OllamaSettings";
 
 export const DEFAULT_SETTINGS: OllamaSettings = {
   ollamaUrl: "http://localhost:11434",
-  defaultModel: "llama2",
-  promptTemplate: "Act as a writer. {prompt} Output only the text and nothing else, do not chat, no preamble, get to the point.",
+  defaultModel: "llama3",
+  promptTemplate: `{{ if .System }}<|start_header_id|>system<|end_header_id|>{{ .System }}<|eot_id|>{{ end }}
+{{ if .Prompt }}<|start_header_id|>user<|end_header_id|>
+Act as a writer. Output only the text and nothing else, do not chat, no preamble, get to the point. {{ .Prompt }} 
+<|eot_id|>{{ end }}
+<|start_header_id|>assistant<|end_header_id|>{{ .Response }}<|eot_id|>`,
   commands: [
     {
       name: "Summarize selection",

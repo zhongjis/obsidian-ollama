@@ -65,13 +65,7 @@ export class Ollama extends Plugin {
     const selection = editor.getSelection();
     const text = selection ? selection : editor.getValue();
 
-    // Construct full prompt
-    let template = this.settings.promptTemplate;
-    if (template.contains("{prompt}") === false) {
-      new Notice("Warning: Your prompt template does not contain '{prompt}'. Your template will not be used.");
-      template = "{prompt}";
-    }
-    const prompt = template.replace("{prompt}", command.prompt) + "\n\n" + text;
+    const prompt = command.prompt + "\n\n" + text;
 
     const cursorPosition = editor.getCursor();
     editor.replaceRange("✍️", cursorPosition);
@@ -87,6 +81,7 @@ export class Ollama extends Plugin {
         options: {
           temperature: command.temperature || 0.2,
         },
+        template: this.settings.promptTemplate,
       }),
     })
       .then((response) => {
