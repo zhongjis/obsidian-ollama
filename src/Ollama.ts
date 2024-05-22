@@ -24,13 +24,20 @@ export class Ollama extends Plugin {
 
           const cursorPosition = editor.getCursor();
 
+          let template = this.settings.promptTemplate;
+          if (template.contains("{prompt}") === false) {
+            new Notice("Warning: Your prompt template does not contain '{prompt}'. Your template will not be used.");
+            template = "{prompt}";
+          }
+          const prompt = template.replace("{prompt}", command.prompt) + "\n\n" + text;
+
           editor.replaceRange("✍️", cursorPosition);
 
           requestUrl({
             method: "POST",
             url: `${this.settings.ollamaUrl}/api/generate`,
             body: JSON.stringify({
-              prompt: command.prompt + "\n\n" + text,
+              prompt: prompt,
               model: command.model || this.settings.defaultModel,
               options: {
                 temperature: command.temperature || 0.2,

@@ -54,6 +54,21 @@ export class OllamaSettingTab extends PluginSettingTab {
           })
       );
 
+      new Setting(containerEl)
+      .setName("Prompt template")
+      .setDesc("Template applied to all command prompts. Use {prompt} to specify where the command prompt should be inserted when executing a command.")
+      .addTextArea((text) =>
+        text
+          .setPlaceholder(
+            "e.g. Act as a writer. {prompt} Output only the text and nothing else, do not chat, no preamble, get to the point."
+          )
+          .setValue(this.plugin.settings.promptTemplate)
+          .onChange(async (value) => {
+            this.plugin.settings.promptTemplate = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
       
       containerEl.createEl("h3", { text: "Commands" });
 
@@ -157,9 +172,9 @@ export class OllamaSettingTab extends PluginSettingTab {
       .setName("Command prompt")
       .setDesc("Prompt for the command")
       .addTextArea((text) =>
-        text
+        text // TODO expand the default size
           .setPlaceholder(
-            "e.g. Act as a writer. Summarize the text in a view sentences highlighting the key takeaways. Output only the text and nothing else, do not chat, no preamble, get to the point."
+            "e.g. Summarize the text in a view sentences highlighting the key takeaways."
           )
           .setValue(command.prompt)
           .onChange(async (value) => {
@@ -206,8 +221,8 @@ export class OllamaSettingTab extends PluginSettingTab {
         );
     }
     else {
+      // TODO add to one line
       new Setting(containerEl)
-        .setDesc("This requires a reload of obsidian to take effect.")
         .addButton((button) =>
           button.setButtonText("Save").onClick(async () => {
             await this.updateCommand(command, commandIndex);
