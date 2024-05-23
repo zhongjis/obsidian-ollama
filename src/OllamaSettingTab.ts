@@ -21,16 +21,18 @@ export class OllamaSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Ollama URL")
       .setDesc("URL of the Ollama server (e.g. http://localhost:11434)")
+      .addExtraButton((button) =>
+          button.setIcon("refresh-cw").onClick(async () => {
+            this.display();
+          })
+        )
       .addText((text) =>
         text
           .setPlaceholder("http://localhost:11434")
           .setValue(this.plugin.settings.ollamaUrl)
           .onChange(async (value) => {
             this.plugin.settings.ollamaUrl = value;
-            setTimeout(async () => {
-              await this.plugin.saveSettings();
-              this.display();
-            }, 1000); // wait for user to finish typing
+            await this.plugin.saveSettings();
           })
       );
 
@@ -231,6 +233,17 @@ export class OllamaSettingTab extends PluginSettingTab {
           })
       );
 
+    new Setting(containerEl)
+      .setName("Ignore prompt template?")
+      .setDesc("This command will only prompt using the specified prompt and not use the global prompt template.")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(command.ignorePromptTemplate || false)
+          .onChange(async (value) => {
+            command.ignorePromptTemplate = value;
+          })
+      );
+
 
     // Buttons
 
@@ -291,9 +304,20 @@ export class OllamaSettingTab extends PluginSettingTab {
 
   private async addCommand(newCommand: OllamaCommand): Promise<void> {
     if (this.validateCommand(newCommand)) {
-      this.plugin.settings.commands.push(newCommand);
-      await this.plugin.saveSettings();
-      this.display();
+      if (
+        this.plugin.settings.commands.find(
+          (command) => command.name === command.name
+        )
+      ) {
+        new Notice(
+          `A command with the name "${newCommand.name}" already exists.`
+        );
+      }
+      else {
+        this.plugin.settings.commands.push(newCommand);
+        await this.plugin.saveSettings();
+        this.display();
+      }
     }
   }
 
@@ -306,6 +330,7 @@ export class OllamaSettingTab extends PluginSettingTab {
         existingCommand.prompt = command.prompt;
         existingCommand.model = command.model;
         existingCommand.temperature = command.temperature;
+        existingCommand.ignorePromptTemplate = command.ignorePromptTemplate;
       }
       else {
         // This shouldn't happen but just in case
@@ -314,24 +339,12 @@ export class OllamaSettingTab extends PluginSettingTab {
       }
 
       await this.plugin.saveSettings();
-      this.display();
     }
   }
 
   private validateCommand(command: OllamaCommand): boolean {
     if (!command.name) {
       new Notice("Please enter a name for the command.");
-      return false;
-    }
-
-    if (
-      this.plugin.settings.commands.find(
-        (command) => command.name === command.name
-      )
-    ) {
-      new Notice(
-        `A command with the name "${command.name}" already exists.`
-      );
       return false;
     }
     

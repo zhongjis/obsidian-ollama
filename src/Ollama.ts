@@ -70,10 +70,13 @@ export class Ollama extends Plugin {
     new Notice(`debug: ${textInTemplate} ${promptInTemplate}`, 5000);
     new Notice(`debug ${this.settings.promptTemplate} ${this.settings.modelTemplate}`, 5000);
 
-    // If the prompt template doesn't specify where the prompt should be inserted, prepend it.
-    let prompt = promptInTemplate ? 
-      this.settings.promptTemplate.replace("{prompt}", command.prompt) :
-      command.prompt + "\n\n" + this.settings.promptTemplate;
+    let prompt = command.prompt;
+    if (!command.ignorePromptTemplate) {
+      // If the prompt template doesn't specify where the prompt should be inserted, prepend the prompt.
+      prompt = promptInTemplate ? 
+        this.settings.promptTemplate.replace("{prompt}", command.prompt) :
+        command.prompt + "\n\n" + this.settings.promptTemplate;
+    }
     
     // If the model template doesn't specify where the text should be inserted, append to prompt.
     prompt = textInTemplate ? 
