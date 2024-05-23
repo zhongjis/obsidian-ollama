@@ -65,7 +65,24 @@ export class Ollama extends Plugin {
     const selection = editor.getSelection();
     const text = selection ? selection : editor.getValue();
 
-    const prompt = command.prompt + "\n\n" + text;
+    const textInTemplate = this.settings.modelTemplate.contains("{text}");
+    const promptInTemplate = this.settings.promptTemplate.contains("{prompt}");
+    new Notice(`debug: ${textInTemplate} ${promptInTemplate}`, 5000);
+    new Notice(`debug ${this.settings.promptTemplate} ${this.settings.modelTemplate}`, 5000);
+
+    // If the prompt template doesn't specify where the prompt should be inserted, prepend it.
+    let prompt = promptInTemplate ? 
+      this.settings.promptTemplate.replace("{prompt}", command.prompt) :
+      command.prompt + "\n\n" + this.settings.promptTemplate;
+    
+    // If the model template doesn't specify where the text should be inserted, append to prompt.
+    prompt = textInTemplate ? 
+      prompt : 
+      prompt + "\n\n\"" + text + "\"";
+
+    const template = textInTemplate ? 
+      this.settings.modelTemplate.replace("{text}", text) : 
+      this.settings.modelTemplate;
 
     const cursorPosition = editor.getCursor();
     editor.replaceRange("✍️", cursorPosition);
@@ -76,12 +93,12 @@ export class Ollama extends Plugin {
       method: "POST",
       url: `${this.settings.ollamaUrl}/api/generate`,
       body: JSON.stringify({
-        prompt: prompt,
+        prompt,
         model: command.model || this.settings.defaultModel,
         options: {
           temperature: command.temperature || 0.2,
         },
-        template: this.settings.promptTemplate,
+        template,
       }),
     })
       .then((response) => {

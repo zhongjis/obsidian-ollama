@@ -56,14 +56,37 @@ export class OllamaSettingTab extends PluginSettingTab {
 
       new Setting(containerEl)
       .setName("Prompt template")
-      .setDesc("The template parameter passed to the model. Check your model's documentation for the correct format.")
+      .setDesc("The template applied to all command prompts. Use {prompt} to specify where to insert the command prompt, or the prompt will be prepended by default.")
+      .addTextArea((text) =>
+        text
+          .setPlaceholder(
+            `e.g. ${DEFAULT_SETTINGS.promptTemplate}}`
+          )
+          .setValue(this.plugin.settings.promptTemplate)
+          .onChange(async (value) => {
+            this.plugin.settings.promptTemplate = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Model template")
+      .setDesc("The template parameter passed to the model. Check your model's documentation for the correct format. Leave empty to use the model's built in template. Use {text} to specify where to insert the selected text, or the text will be appended to the prompt by default.")
       .addTextArea((text) =>
         text
           .setPlaceholder(
             `Example llama3 template:
-${DEFAULT_SETTINGS.promptTemplate}}`
+{{ if .System }}
+<|start_header_id|>system<|end_header_id|>{{ .System }}<|eot_id|>
+{{ end }}
+
+<|start_header_id|>text<|end_header_id|>{text}<|eot_id|>
+
+{{ if .Prompt }}<|start_header_id|>user<|end_header_id|>{{ .Prompt }}<|eot_id|>{{ end }}
+
+<|start_header_id|>assistant<|end_header_id|>{{ .Response }}<|eot_id|>`
           )
-          .setValue(this.plugin.settings.promptTemplate)
+          .setValue(this.plugin.settings.modelTemplate)
           .onChange(async (value) => {
             this.plugin.settings.promptTemplate = value;
             await this.plugin.saveSettings();
