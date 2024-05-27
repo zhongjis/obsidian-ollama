@@ -90,7 +90,7 @@ export class OllamaSettingTab extends PluginSettingTab {
           )
           .setValue(this.plugin.settings.modelTemplate)
           .onChange(async (value) => {
-            this.plugin.settings.promptTemplate = value;
+            this.plugin.settings.modelTemplate = value;
             await this.plugin.saveSettings();
           })
       );
@@ -306,7 +306,7 @@ export class OllamaSettingTab extends PluginSettingTab {
     if (this.validateCommand(newCommand)) {
       if (
         this.plugin.settings.commands.find(
-          (command) => command.name === command.name
+          (command) => newCommand.name === command.name
         )
       ) {
         new Notice(
