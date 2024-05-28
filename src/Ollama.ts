@@ -1,13 +1,15 @@
 import { kebabCase } from "service/kebabCase";
 import { Editor, Notice, Plugin, requestUrl } from "obsidian";
-import { OllamaSettingTab } from "OllamaSettingTab";
+import { OllamaSettingTab } from "gui/OllamaSettingTab";
 import { DEFAULT_SETTINGS } from "data/defaultSettings";
 import { OllamaSettings } from "model/OllamaSettings";
-import { CustomPromptModal } from "CustomPromptModal";
+import { CustomPromptModal } from "gui/CustomPromptModal";
 import { OllamaCommand } from "model/OllamaCommand";
+import { SaveCustomPromptModal } from "gui/SaveCustomPromptModal";
 
 export class Ollama extends Plugin {
   settings: OllamaSettings;
+  previousCustomPrompt: OllamaCommand | null = null;
 
   async onload() {
     await this.loadSettings();
@@ -38,6 +40,7 @@ export class Ollama extends Plugin {
       },
     });
 
+    // Add custom prompt command to ribbon
     this.addRibbonIcon("bot", "Ollama Custom Prompt", () => {
       const editor = this.app.workspace.activeEditor?.editor;
       if (editor) {
@@ -46,6 +49,24 @@ export class Ollama extends Plugin {
       else {
         new Notice("Please open a file and select some text.");
       }
+    });
+
+    // Allow users to save their previous custom prompt to a command
+    this.addCommand({
+      id: "save-custom-prompt",
+      name: "Save custom prompt",
+      callback: () => {
+        if (!this.previousCustomPrompt) {
+          new Notice("No custom prompt to save.");
+        }
+        else {
+          // Open modal to ask user for command name.
+          new SaveCustomPromptModal(this.app, this.previousCustomPrompt, (previousCustomPrompt) => {
+            this.settings.commands.push(previousCustomPrompt);
+            new Notice("Custom prompt saved.");
+          }).open();
+        }
+      },
     });
   }
 
@@ -56,6 +77,9 @@ export class Ollama extends Plugin {
         prompt: prompt,
       };
       // Uses the default model and temperature
+
+      // Record this custom prompt in case the user wants to save it
+      this.previousCustomPrompt = customCommand;
 
       this.promptOllama(editor, customCommand);
     }).open();
