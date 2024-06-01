@@ -91,8 +91,8 @@ export class Ollama extends Plugin {
 
     const textInTemplate = this.settings.modelTemplate.contains("{text}");
     const promptInTemplate = this.settings.promptTemplate.contains("{prompt}");
-    new Notice(`debug: ${textInTemplate} ${promptInTemplate}`, 5000);
-    new Notice(`debug ${this.settings.promptTemplate} ${this.settings.modelTemplate}`, 5000);
+    // new Notice(`debug: ${textInTemplate} ${promptInTemplate}`, 5000);
+    // new Notice(`debug: ${this.settings.promptTemplate} ${this.settings.modelTemplate}`, 5000);
 
     let prompt = command.prompt;
     if (!command.ignorePromptTemplate) {
@@ -114,7 +114,7 @@ export class Ollama extends Plugin {
     const cursorPosition = editor.getCursor();
     editor.replaceRange("✍️", cursorPosition);
 
-    new Notice("Prompted Ollama with the following:" + prompt, 5000);
+    // new Notice("debug: Prompted Ollama with the following: " + prompt, 5000);
 
     requestUrl({
       method: "POST",

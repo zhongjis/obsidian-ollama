@@ -1,4 +1,5 @@
 import { App, Modal, Setting } from "obsidian";
+import { SettingTextArea } from "./SettingTextArea";
 
 export class CustomPromptModal extends Modal {
   prompt: string;
@@ -14,9 +15,9 @@ export class CustomPromptModal extends Modal {
 
     contentEl.createEl("h2", { text: "Enter Custom Prompt" });
 
-    new Setting(contentEl)
+    new SettingTextArea(contentEl)
       .setName("Prompt")
-      .addText((text) => {
+      .addTextArea((text) => {
         text
         .setPlaceholder("e.g. Summarize the text in a few sentences highlighting the key takeaways.")
         .onChange((value) => {

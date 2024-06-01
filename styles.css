@@ -6,3 +6,51 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+/*
+Collapsible section styles
+*/
+
+.command-collapsible {
+    position: relative;
+    border-top: 1px solid var(--background-modifier-border);
+    margin-bottom: var(--size-4-1);
+}
+
+.command-collapsible > .icon {
+    position: absolute;
+    width: var(--size-4-6);
+    height: var(--size-4-6);
+    top: var(--size-4-5);
+    right: 0;
+}
+
+.command-collapsible > .content {
+    display: none;
+}
+
+.command-collapsible.open > .content {
+    display: block;
+}
+
+
+
+/*
+Better Text Area Setting Styles
+*/
+
+.setting-textarea {
+    padding: 0.75em 0;
+    border-top: 1px solid var(--background-modifier-border);
+
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.setting-textarea > .setting-item-control > textarea {
+    margin-top: var(--size-4-1);
+    width: 100%;
+    height: var(--size-4-12);
+    resize: vertical;
+}

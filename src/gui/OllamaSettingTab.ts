@@ -1,7 +1,8 @@
-import { App, Notice, PluginSettingTab, requestUrl, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, requestUrl, setIcon, Setting } from "obsidian";
 import { DEFAULT_SETTINGS } from "data/defaultSettings";
 import { OllamaCommand } from "model/OllamaCommand";
 import { Ollama } from "Ollama";
+import { SettingTextArea } from "./SettingTextArea";
 
 export class OllamaSettingTab extends PluginSettingTab {
   plugin: Ollama;
@@ -56,7 +57,7 @@ export class OllamaSettingTab extends PluginSettingTab {
           })
       );
 
-      new Setting(containerEl)
+      new SettingTextArea(containerEl)
       .setName("Prompt template")
       .setDesc("The template applied to all command prompts. Use {prompt} to specify where to insert the command prompt, or the prompt will be prepended by default.")
       .addTextArea((text) =>
@@ -71,7 +72,7 @@ export class OllamaSettingTab extends PluginSettingTab {
           })
       );
 
-    new Setting(containerEl)
+    new SettingTextArea(containerEl)
       .setName("Model template")
       .setDesc("The template parameter passed to the model. Check your model's documentation for the correct format. Leave empty to use the model's built in template. Use {text} to specify where to insert the selected text, or the text will be appended to the prompt by default.")
       .addTextArea((text) =>
@@ -114,32 +115,6 @@ export class OllamaSettingTab extends PluginSettingTab {
       containerEl.createEl("h4", { text: "Reset Commands" });
 
       new Setting(containerEl)
-        .setName("Update Default Commands")
-        .setDesc(
-          "Update commands to the default commands. This cannot be undone and will overwrite some commands by matching names. This requires a reload of obsidian to take effect."
-        )
-        .addButton((button) => {
-          button.setWarning();
-          return button.setButtonText("Update").onClick(async () => {
-            DEFAULT_SETTINGS.commands.forEach((command) => {
-              const existingCommand = this.plugin.settings.commands.find(
-                (c) => c.name === command.name
-              );
-
-              if (existingCommand) {
-                existingCommand.prompt = command.prompt;
-                existingCommand.model = command.model;
-                existingCommand.temperature = command.temperature;
-              } else {
-                this.plugin.settings.commands.push(command);
-              }
-            });
-            await this.plugin.saveSettings();
-            this.display();
-          });
-        });
-
-      new Setting(containerEl)
         .setName("Reset Commands")
         .setDesc(
           "Reset all commands to the default commands. This cannot be undone and will delete all your custom commands. This requires a reload of obsidian to take effect."
@@ -172,16 +147,35 @@ export class OllamaSettingTab extends PluginSettingTab {
       (c) => c.name === command.name
     );
 
-    // Title
-    if (commandIndex !== -1) {
-      containerEl.createEl("h5", { text: command.name });
+    let commandContainerEl: HTMLElement = containerEl;
+
+    if (commandIndex !== -1) {      
+      // Collapsible section for existing commands
+      const commandCollapsible = containerEl.createDiv({ cls: "command-collapsible" });
+      const collapsibleHeading = commandCollapsible.createEl("h5", { text: command.name });
+      const icon = commandCollapsible.createDiv({ cls: "icon" });
+      setIcon(icon, "chevron-left")
+
+      collapsibleHeading.addEventListener("click", () => {
+        commandCollapsible.classList.toggle("open");
+
+        // Set collapsible icon
+        if (commandCollapsible.classList.contains("open")) {
+          setIcon(icon, "chevron-down");
+        }
+        else {
+          setIcon(icon, "chevron-left");
+        }
+      });
+
+      commandContainerEl = commandCollapsible.createDiv({ cls: "content" });
     }
     else {
       containerEl.createEl("h4", { text: "New Command" });
     }
 
     // Inputs
-    new Setting(containerEl)
+    new Setting(commandContainerEl)
       .setName("Command name")
       .setDesc("Name of the command")
       .addText((text) =>
@@ -194,11 +188,11 @@ export class OllamaSettingTab extends PluginSettingTab {
           })
       );
 
-    new Setting(containerEl)
+    new SettingTextArea(commandContainerEl)
       .setName("Command prompt")
       .setDesc("Prompt for the command")
       .addTextArea((text) =>
-        text // TODO expand the default size
+        text
           .setPlaceholder(
             "e.g. Summarize the text in a few sentences highlighting the key takeaways."
           )
@@ -208,7 +202,7 @@ export class OllamaSettingTab extends PluginSettingTab {
           })
       );
 
-    new Setting(containerEl)
+    new Setting(commandContainerEl)
       .setName("Command model")
       .setDesc("Run this model on a specific model or the default model.")
       .addDropdown((dropdown) => {
@@ -221,19 +215,20 @@ export class OllamaSettingTab extends PluginSettingTab {
       }
     );
 
-    new Setting(containerEl)
+    new Setting(commandContainerEl)
       .setName("Command temperature")
-      .setDesc("Temperature to use for the command")
+      .setDesc("The temperature of the model. Lower values will result in deterministic responses, higher values will be more creative.")
       .addSlider((slider) =>
         slider
           .setLimits(0, 1, 0.01)
           .setValue(command.temperature || 0.2)
+          .setDynamicTooltip()
           .onChange(async (value) => {
             command.temperature = value;
           })
       );
 
-    new Setting(containerEl)
+    new Setting(commandContainerEl)
       .setName("Ignore prompt template?")
       .setDesc("This command will only prompt using the specified prompt and not use the global prompt template.")
       .addToggle((toggle) =>
@@ -249,7 +244,7 @@ export class OllamaSettingTab extends PluginSettingTab {
 
     // Only show add command button if new command
     if (commandIndex === -1) {
-      new Setting(containerEl)
+      new Setting(commandContainerEl)
         .setDesc("This requires a reload of obsidian to take effect.")
         .addButton((button) =>
           button.setButtonText("Add Command").onClick(async () => {
@@ -258,15 +253,12 @@ export class OllamaSettingTab extends PluginSettingTab {
         );
     }
     else {
-      // TODO add to one line
-      new Setting(containerEl)
+      new Setting(commandContainerEl)
         .addButton((button) =>
           button.setButtonText("Save").onClick(async () => {
             await this.updateCommand(command, commandIndex);
           })
-        );
-
-      new Setting(containerEl)
+        )
         .addButton((button) =>
           button.setButtonText("Remove").onClick(async () => {
             this.plugin.settings.commands =
