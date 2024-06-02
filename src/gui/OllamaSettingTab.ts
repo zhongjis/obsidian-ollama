@@ -131,10 +131,8 @@ export class OllamaSettingTab extends PluginSettingTab {
     })
     .catch((error) => {
       containerEl.removeChild(loadingEl);
-      // TODO prompt user to enter the correct URL and refresh button
       new Notice("Ollama is not running or the URL is incorrect.");
 
-      // TODO markdown [!failure] style box
       containerEl.createEl("p", { text: "Couldn't connect to Ollama. Please enter the correct URL." });
       const debug = containerEl.createEl("p", { text: `This error might help you figure out what went wrong:` });
       debug.createEl("pre", { text: error });
@@ -257,6 +255,7 @@ export class OllamaSettingTab extends PluginSettingTab {
         .addButton((button) =>
           button.setButtonText("Save").onClick(async () => {
             await this.updateCommand(command, commandIndex);
+            new Notice("Command saved.");
           })
         )
         .addButton((button) =>

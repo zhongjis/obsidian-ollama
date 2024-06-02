@@ -89,11 +89,9 @@ export class Ollama extends Plugin {
     const selection = editor.getSelection();
     const text = selection ? selection : editor.getValue();
 
-    const textInTemplate = this.settings.modelTemplate.contains("{text}");
+    // Insert the prompt into the prompt template if necessary
     const promptInTemplate = this.settings.promptTemplate.contains("{prompt}");
-    // new Notice(`debug: ${textInTemplate} ${promptInTemplate}`, 5000);
-    // new Notice(`debug: ${this.settings.promptTemplate} ${this.settings.modelTemplate}`, 5000);
-
+    // new Notice(`debug: promptInTemplate: ${promptInTemplate}`, 5000);
     let prompt = command.prompt;
     if (!command.ignorePromptTemplate) {
       // If the prompt template doesn't specify where the prompt should be inserted, prepend the prompt.
@@ -101,20 +99,30 @@ export class Ollama extends Plugin {
         this.settings.promptTemplate.replace("{prompt}", command.prompt) :
         command.prompt + "\n\n" + this.settings.promptTemplate;
     }
+    // new Notice(`debug: prompt: ${prompt}`, 5000);
+
+    // If the command uses the default model, the model template will be used. If not, ignore the model template.
+    const useModelTemplate = command.model == undefined || command.model == this.settings.defaultModel;
+    let template = "";
+
+    if (useModelTemplate) {
+      const textInTemplate = this.settings.modelTemplate.contains("{text}");
+      // new Notice(`debug: textInTemplate: ${textInTemplate}`, 5000);
+      template = textInTemplate ? 
+        this.settings.modelTemplate.replace("{text}", text) : 
+        this.settings.modelTemplate;
+        // new Notice(`debug: ${template}`, 5000);
+    }
     
     // If the model template doesn't specify where the text should be inserted, append to prompt.
-    prompt = textInTemplate ? 
+    prompt = template != "" ? 
       prompt : 
       prompt + "\n\n\"" + text + "\"";
 
-    const template = textInTemplate ? 
-      this.settings.modelTemplate.replace("{text}", text) : 
-      this.settings.modelTemplate;
+    // new Notice("debug: Prompted Ollama with the following: " + prompt, 5000);
 
     const cursorPosition = editor.getCursor();
     editor.replaceRange("✍️", cursorPosition);
-
-    // new Notice("debug: Prompted Ollama with the following: " + prompt, 5000);
 
     requestUrl({
       method: "POST",
