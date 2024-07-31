@@ -1,8 +1,8 @@
 # Obsidian Ollama Fork
 
-This repository is a fork of the [original Obsidian Ollama plugin](https://github.com/hinterdupfinger/obsidian-ollama) by [hinterdupfinger](https://github.com/hinterdupfinger).
+This repository is a maintained fork of the [original Obsidian Ollama plugin](https://github.com/hinterdupfinger/obsidian-ollama) by [hinterdupfinger](https://github.com/hinterdupfinger).
 
-Additional inspiration has been drawn from [JPW03's fork](https://github.com/JPW03/obsidian-ollama/tree/main).
+Merged [JPW03's fork](https://github.com/hinterdupfinger/obsidian-ollama/pull/2).
 
 ## Principles
 
@@ -50,9 +50,11 @@ To make it obvious in your prompt what context you are referring to, I recommend
 ### Prompt Template
 
 This acts as wrapper text applied to all commands. For example, see the default prompt template:
+
 ```
 Act as a writer. {prompt} Output only the text and nothing else, do not chat, no preamble, get to the point.
 ```
+
 When you run a command, the `{prompt}` token is replaced with the command's prompt. If `{prompt}` is not specified, the template is appended to the prompt by default.
 
 You may want certain commands to bypass this prompt template (for example if you wanted the model to act as another type of character). There is a setting for this.
@@ -64,6 +66,7 @@ The model template is a standard practice parameter of LLMs which help with form
 Optionally, this plugin allows you to set a custom model template for the default model. If a command doesn't use the default model, the model template will be ignored.
 
 The structure and syntax of a prompt template will depend on your model, utilising tokens that are specially recognised by that model. For example, a [llama3](https://llama.meta.com/docs/model-cards-and-prompt-formats/meta-llama-3/) model template would look something like this:
+
 ```
 {{ if .System }}
 <|start_header_id|>system<|end_header_id|>{{ .System }}<|eot_id|>
