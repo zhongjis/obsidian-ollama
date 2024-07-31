@@ -1,4 +1,20 @@
-# 🦙 Obsidian Ollama
+# Obsidian Ollama Fork
+
+This repository is a fork of the [original Obsidian Ollama plugin](https://github.com/hinterdupfinger/obsidian-ollama) by [hinterdupfinger](https://github.com/hinterdupfinger).
+
+Additional inspiration has been drawn from [JPW03's fork](https://github.com/JPW03/obsidian-ollama/tree/main).
+
+## Principles
+
+The core principles of this plugin are:
+
+1. Simple setup for beginners
+2. Sophisticated advanced configuration for power users
+3. That's it!
+
+I (hopefully `we` in the future) believe in keeping things straightforward and user-friendly.
+
+## About
 
 This is a plugin for [Obsidian](https://obsidian.md) that allows you to use [Ollama](https://ollama.ai) within your notes.
 There are different pre configured promts:
