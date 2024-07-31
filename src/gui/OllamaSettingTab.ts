@@ -121,10 +121,10 @@ export class OllamaSettingTab extends PluginSettingTab {
           this.displayCommandSettings(command, containerEl);
         });
 
-        containerEl.createEl("h4", { text: "Reset Commands" });
+        containerEl.createEl("h3", { text: "Dangerous" });
 
         new Setting(containerEl)
-          .setName("Reset Commands")
+          .setName("Reset All Commands")
           .setDesc(
             "Reset all commands to the default commands. This cannot be undone and will delete all your custom commands. This requires a reload of obsidian to take effect.",
           )
