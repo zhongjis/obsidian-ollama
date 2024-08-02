@@ -15,7 +15,7 @@
     "plugin",
     "llama"
   ],
-  "author": "hinterdupfinger",
+  "author": "zhongjis",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "20.6.2",
