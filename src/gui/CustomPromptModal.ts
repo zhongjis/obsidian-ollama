@@ -15,30 +15,26 @@ export class CustomPromptModal extends Modal {
 
     contentEl.createEl("h2", { text: "Enter Custom Prompt" });
 
-    new SettingTextArea(contentEl)
-      .setName("Prompt")
-      .addTextArea((text) => {
-        text
-        .setPlaceholder("e.g. Summarize the text in a few sentences highlighting the key takeaways.")
+    new SettingTextArea(contentEl).setName("Prompt").addTextArea((text) => {
+      text
+        .setPlaceholder(
+          "e.g. Summarize the text in a few sentences highlighting the key takeaways.",
+        )
         .onChange((value) => {
           this.prompt = value;
         });
-      });
+    });
 
-    new Setting(contentEl)
-      .addButton((button) => {
-        button
-          .setButtonText("Submit")
-          .onClick(() => {
-            this.onSubmit(this.prompt);
-            this.close();
-          });
+    new Setting(contentEl).addButton((button) => {
+      button.setButtonText("Submit").onClick(() => {
+        this.onSubmit(this.prompt);
+        this.close();
       });
+    });
   }
 
   onClose() {
     const { contentEl } = this;
     contentEl.empty();
   }
-
 }

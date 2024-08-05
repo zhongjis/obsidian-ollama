@@ -3,7 +3,8 @@ import { OllamaSettings } from "model/OllamaSettings";
 export const DEFAULT_SETTINGS: OllamaSettings = {
   ollamaUrl: "http://localhost:11434",
   defaultModel: "llama3",
-  promptTemplate: "Act as a writer. {prompt} Output only the text and nothing else, do not chat, no preamble, get to the point.",
+  promptTemplate:
+    "Act as a writer. {prompt} Output only the text and nothing else, do not chat, no preamble, get to the point.",
   modelTemplate: "",
   commands: [
     {

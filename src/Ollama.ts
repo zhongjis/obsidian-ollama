@@ -45,8 +45,7 @@ export class Ollama extends Plugin {
       const editor = this.app.workspace.activeEditor?.editor;
       if (editor) {
         this.customPromptCommandCallback(editor);
-      }
-      else {
+      } else {
         new Notice("Please open a file and select some text.");
       }
     });
@@ -58,13 +57,16 @@ export class Ollama extends Plugin {
       callback: () => {
         if (!this.previousCustomPrompt) {
           new Notice("No custom prompt to save.");
-        }
-        else {
+        } else {
           // Open modal to ask user for command name.
-          new SaveCustomPromptModal(this.app, this.previousCustomPrompt, (previousCustomPrompt) => {
-            this.settings.commands.push(previousCustomPrompt);
-            new Notice("Custom prompt saved.");
-          }).open();
+          new SaveCustomPromptModal(
+            this.app,
+            this.previousCustomPrompt,
+            (previousCustomPrompt) => {
+              this.settings.commands.push(previousCustomPrompt);
+              new Notice("Custom prompt saved.");
+            },
+          ).open();
         }
       },
     });
@@ -95,29 +97,28 @@ export class Ollama extends Plugin {
     let prompt = command.prompt;
     if (!command.ignorePromptTemplate) {
       // If the prompt template doesn't specify where the prompt should be inserted, prepend the prompt.
-      prompt = promptInTemplate ? 
-        this.settings.promptTemplate.replace("{prompt}", command.prompt) :
-        command.prompt + "\n\n" + this.settings.promptTemplate;
+      prompt = promptInTemplate
+        ? this.settings.promptTemplate.replace("{prompt}", command.prompt)
+        : command.prompt + "\n\n" + this.settings.promptTemplate;
     }
     // new Notice(`debug: prompt: ${prompt}`, 5000);
 
     // If the command uses the default model, the model template will be used. If not, ignore the model template.
-    const useModelTemplate = command.model == undefined || command.model == this.settings.defaultModel;
+    const useModelTemplate =
+      command.model == undefined || command.model == this.settings.defaultModel;
     let template = "";
 
     if (useModelTemplate) {
       const textInTemplate = this.settings.modelTemplate.contains("{text}");
       // new Notice(`debug: textInTemplate: ${textInTemplate}`, 5000);
-      template = textInTemplate ? 
-        this.settings.modelTemplate.replace("{text}", text) : 
-        this.settings.modelTemplate;
-        // new Notice(`debug: ${template}`, 5000);
+      template = textInTemplate
+        ? this.settings.modelTemplate.replace("{text}", text)
+        : this.settings.modelTemplate;
+      // new Notice(`debug: ${template}`, 5000);
     }
-    
+
     // If the model template doesn't specify where the text should be inserted, append to prompt.
-    prompt = template != "" ? 
-      prompt : 
-      prompt + "\n\n\"" + text + "\"";
+    prompt = template != "" ? prompt : prompt + '\n\n"' + text + '"';
 
     // new Notice("debug: Prompted Ollama with the following: " + prompt, 5000);
 
@@ -151,7 +152,7 @@ export class Ollama extends Plugin {
           {
             ch: cursorPosition.ch + 1, // accounts for the added writing emoji
             line: cursorPosition.line,
-          }
+          },
         );
       })
       .catch((error) => {
