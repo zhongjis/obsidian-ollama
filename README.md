@@ -1,9 +1,5 @@
 # Obsidian Ollama Fork
 
-This repository is a maintained fork of the [original Obsidian Ollama plugin](https://github.com/hinterdupfinger/obsidian-ollama) by [hinterdupfinger](https://github.com/hinterdupfinger).
-
-Merged [JPW03's fork](https://github.com/hinterdupfinger/obsidian-ollama/pull/2).
-
 ## Principles
 
 The core principles of this plugin are:
@@ -84,3 +80,9 @@ Where the prompt is inserted is handled by the model (the prompt would be insert
 The selected text passed to a command would be inserted at the token `{text}`. This is handled by the plugin and will not depend on the model you use. You don't have to include this token in your model template (by default, the text is appended to the prompt).
 
 Refer to the model's documentation for specific formatting information.
+
+# Special Thanks
+
+This repository is a fork from [Obsidian Ollama plugin](https://github.com/hinterdupfinger/obsidian-ollama) by [hinterdupfinger](https://github.com/hinterdupfinger).
+
+Ideas drawn from [JPW03's fork](https://github.com/hinterdupfinger/obsidian-ollama/pull/2).
