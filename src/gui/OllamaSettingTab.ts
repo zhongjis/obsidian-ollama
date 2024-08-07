@@ -31,7 +31,7 @@ export class OllamaSettingTab extends PluginSettingTab {
       .setDesc("URL of the Ollama server (e.g. http://localhost:11434)")
       .addExtraButton((button) =>
         button.setIcon("refresh-cw").onClick(async () => {
-          this.display();
+          this.checkOllamaConnection();
         }),
       )
       .addText((text) =>
@@ -149,6 +149,21 @@ export class OllamaSettingTab extends PluginSettingTab {
         });
         debug.createEl("pre", { text: error });
       });
+  }
+
+  private async checkOllamaConnection(): Promise<void> {
+    try {
+      await requestUrl({
+        url: this.plugin.settings.ollamaUrl + "/api/tags",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      new Notice("Ollama is running and the URL is correct.");
+    } catch (error) {
+      new Notice("Ollama is not running or the URL is incorrect.");
+    }
   }
 
   // Loads the setting inputs for a single command to allow for editing/saving
