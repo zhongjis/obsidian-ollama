@@ -1,8 +1,8 @@
 {
 	"id": "ollama-zshen-fork",
 	"name": "Ollama",
-	"version": "0.0.1",
-	"minAppVersion": "0.15.0",
+	"version": "0.0.2",
+	"minAppVersion": "1.6.6",
 	"description": "This is a plugin for Obsidian that enables the usage of Ollama within your notes.",
 	"author": "zhongjis",
 	"authorUrl": "https://github.com/zhongjis",
