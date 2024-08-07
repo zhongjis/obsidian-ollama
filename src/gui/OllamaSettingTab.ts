@@ -44,14 +44,9 @@ export class OllamaSettingTab extends PluginSettingTab {
           }),
       );
 
-    const loadingEl = containerEl.createEl("p", { text: "Loading..." });
-
     // Load available models
     this.loadAvailableModels()
       .then(() => {
-        // Load command settings if models are loaded
-        containerEl.removeChild(loadingEl);
-
         new Setting(containerEl)
           .setName("Default model")
           .setDesc("Name of the default ollama model to use for prompts")
@@ -138,7 +133,6 @@ export class OllamaSettingTab extends PluginSettingTab {
           });
       })
       .catch((error) => {
-        containerEl.removeChild(loadingEl);
         new Notice("Ollama is not running or the URL is incorrect.");
 
         containerEl.createEl("p", {
