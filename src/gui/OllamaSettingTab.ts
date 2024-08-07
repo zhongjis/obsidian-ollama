@@ -160,9 +160,11 @@ export class OllamaSettingTab extends PluginSettingTab {
           "Content-Type": "application/json",
         },
       });
-      new Notice("Ollama is running and the URL is correct.");
+      new Notice("Ollama is running.");
     } catch (error) {
-      new Notice("Ollama is not running or the URL is incorrect.");
+      new Notice(
+        "Ollama is not running or the URL is incorrect. Error: " + error,
+      );
     }
   }
 
