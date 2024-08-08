@@ -19,6 +19,8 @@ export class OllamaSettingTab extends PluginSettingTab {
   constructor(app: App, plugin: Ollama) {
     super(app, plugin);
     this.plugin = plugin;
+    // Load available models
+    this.loadAvailableModels();
   }
 
   display(): void {
@@ -44,46 +46,43 @@ export class OllamaSettingTab extends PluginSettingTab {
           }),
       );
 
-    // Load available models
-    this.loadAvailableModels()
-      .then(() => {
-        new Setting(containerEl)
-          .setName("Default model")
-          .setDesc("Name of the default ollama model to use for prompts")
-          .addDropdown((dropdown) =>
-            dropdown
-              .addOptions(this.availableModels)
-              .setValue(this.plugin.settings.defaultModel)
-              .onChange(async (value) => {
-                this.plugin.settings.defaultModel = value;
-                await this.plugin.saveSettings();
-              }),
-          );
+    new Setting(containerEl)
+      .setName("Default model")
+      .setDesc("Name of the default ollama model to use for prompts")
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions(this.availableModels)
+          .setValue(this.plugin.settings.defaultModel)
+          .onChange(async (value) => {
+            this.plugin.settings.defaultModel = value;
+            await this.plugin.saveSettings();
+          }),
+      );
 
-        new SettingTextArea(containerEl)
-          .setName("Prompt template")
-          .setDesc(
-            "The template applied to all command prompts. Use {prompt} to specify where to insert the command prompt, or the prompt will be prepended by default.",
-          )
-          .addTextArea((text) =>
-            text
-              .setPlaceholder(`e.g. ${DEFAULT_SETTINGS.promptTemplate}}`)
-              .setValue(this.plugin.settings.promptTemplate)
-              .onChange(async (value) => {
-                this.plugin.settings.promptTemplate = value;
-                await this.plugin.saveSettings();
-              }),
-          );
+    new SettingTextArea(containerEl)
+      .setName("Prompt template")
+      .setDesc(
+        "The template applied to all command prompts. Use {prompt} to specify where to insert the command prompt, or the prompt will be prepended by default.",
+      )
+      .addTextArea((text) =>
+        text
+          .setPlaceholder(`e.g. ${DEFAULT_SETTINGS.promptTemplate}}`)
+          .setValue(this.plugin.settings.promptTemplate)
+          .onChange(async (value) => {
+            this.plugin.settings.promptTemplate = value;
+            await this.plugin.saveSettings();
+          }),
+      );
 
-        new SettingTextArea(containerEl)
-          .setName("Model template")
-          .setDesc(
-            "The template parameter passed to the model. Check your model's documentation for the correct format. Leave empty to use the model's built in template. Use {text} to specify where to insert the selected text, or the text will be appended to the prompt by default.",
-          )
-          .addTextArea((text) =>
-            text
-              .setPlaceholder(
-                `Example llama3 template:
+    new SettingTextArea(containerEl)
+      .setName("Model template")
+      .setDesc(
+        "The template parameter passed to the model. Check your model's documentation for the correct format. Leave empty to use the model's built in template. Use {text} to specify where to insert the selected text, or the text will be appended to the prompt by default.",
+      )
+      .addTextArea((text) =>
+        text
+          .setPlaceholder(
+            `Example llama3 template:
 {{ if .System }}
 <|start_header_id|>system<|end_header_id|>{{ .System }}<|eot_id|>
 {{ end }}
@@ -93,55 +92,43 @@ export class OllamaSettingTab extends PluginSettingTab {
 {{ if .Prompt }}<|start_header_id|>user<|end_header_id|>{{ .Prompt }}<|eot_id|>{{ end }}
 
 <|start_header_id|>assistant<|end_header_id|>{{ .Response }}<|eot_id|>`,
-              )
-              .setValue(this.plugin.settings.modelTemplate)
-              .onChange(async (value) => {
-                this.plugin.settings.modelTemplate = value;
-                await this.plugin.saveSettings();
-              }),
-          );
-
-        containerEl.createEl("h3", { text: "Commands" });
-
-        const newCommand: OllamaCommand = {
-          name: "",
-          prompt: "",
-          model: "Default",
-          temperature: undefined,
-        };
-        this.displayCommandSettings(newCommand, containerEl);
-
-        containerEl.createEl("h4", { text: "Existing Commands" });
-        this.plugin.settings.commands.forEach((command) => {
-          this.displayCommandSettings(command, containerEl);
-        });
-
-        containerEl.createEl("h3", { text: "Dangerous" });
-
-        new Setting(containerEl)
-          .setName("Reset All Commands")
-          .setDesc(
-            "Reset all commands to the default commands. This cannot be undone and will delete all your custom commands. This requires a reload of obsidian to take effect.",
           )
-          .addButton((button) => {
-            button.setWarning();
-            return button.setButtonText("Reset").onClick(async () => {
-              this.plugin.settings.commands = DEFAULT_SETTINGS.commands;
-              await this.plugin.saveSettings();
-              this.display();
-            });
-          });
-      })
-      .catch((error) => {
-        new Notice("Ollama is not running or the URL is incorrect.");
+          .setValue(this.plugin.settings.modelTemplate)
+          .onChange(async (value) => {
+            this.plugin.settings.modelTemplate = value;
+            await this.plugin.saveSettings();
+          }),
+      );
 
-        containerEl.createEl("p", {
-          text: "Couldn't connect to Ollama. Please enter the correct URL.",
+    containerEl.createEl("h3", { text: "Commands" });
+
+    const newCommand: OllamaCommand = {
+      name: "",
+      prompt: "",
+      model: "Default",
+      temperature: undefined,
+    };
+    this.displayCommandSettings(newCommand, containerEl);
+
+    containerEl.createEl("h4", { text: "Existing Commands" });
+    this.plugin.settings.commands.forEach((command) => {
+      this.displayCommandSettings(command, containerEl);
+    });
+
+    containerEl.createEl("h3", { text: "Dangerous" });
+
+    new Setting(containerEl)
+      .setName("Reset All Commands")
+      .setDesc(
+        "Reset all commands to the default commands. This cannot be undone and will delete all your custom commands. This requires a reload of obsidian to take effect.",
+      )
+      .addButton((button) => {
+        button.setWarning();
+        return button.setButtonText("Reset").onClick(async () => {
+          this.plugin.settings.commands = DEFAULT_SETTINGS.commands;
+          await this.plugin.saveSettings();
+          this.display();
         });
-        const debug = containerEl.createEl("p", {
-          text: `This error might help you figure out what went wrong:`,
-        });
-        debug.createEl("pre", { text: error });
       });
   }
 
@@ -302,30 +289,31 @@ export class OllamaSettingTab extends PluginSettingTab {
 
   // Calls the Ollama /api/tags endpoint to get the list of installed models
   // If Ollama is not running/URL is incorrect, an error is thrown.
-  async loadAvailableModels() {
-    const response = await requestUrl({
+  private loadAvailableModels() {
+    requestUrl({
       url: this.plugin.settings.ollamaUrl + "/api/tags",
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-    });
-    const models: string[] = response.json.models.map(
-      (model: { name: string }) => model.name.replace(":latest", ""),
-    );
-    this.availableModels = models.reduce(
-      (record, model) => {
-        record[model] = model;
-        return record;
-      },
-      {} as Record<string, string>,
-    );
-    // availableModels is stored as a Record<string, string> because that's what addDropdown takes as options
+    }).then((response) => {
+      const models: string[] = response.json.models.map(
+        (model: { name: string }) => model.name.replace(":latest", ""),
+      );
+      this.availableModels = models.reduce(
+        (record, model) => {
+          record[model] = model;
+          return record;
+        },
+        {} as Record<string, string>,
+      );
+      // availableModels is stored as a Record<string, string> because that's what addDropdown takes as options
 
-    this.availableModelsAndDefault = {
-      Default: "Default",
-      ...this.availableModels,
-    };
+      this.availableModelsAndDefault = {
+        Default: "Default",
+        ...this.availableModels,
+      };
+    });
   }
 
   // Save handlers
