@@ -20,7 +20,7 @@ export class OllamaSettingTab extends PluginSettingTab {
     super(app, plugin);
     this.plugin = plugin;
     // Load available models
-    this.loadAvailableModels();
+    this.reloadAvailableModels();
   }
 
   display(): void {
@@ -33,7 +33,7 @@ export class OllamaSettingTab extends PluginSettingTab {
       .setDesc("URL of the Ollama server (e.g. http://localhost:11434)")
       .addExtraButton((button) =>
         button.setIcon("refresh-cw").onClick(async () => {
-          this.checkOllamaConnection();
+          this.reloadAvailableModels(true);
         }),
       )
       .addText((text) =>
@@ -130,23 +130,6 @@ export class OllamaSettingTab extends PluginSettingTab {
           this.display();
         });
       });
-  }
-
-  private async checkOllamaConnection(): Promise<void> {
-    try {
-      await requestUrl({
-        url: this.plugin.settings.ollamaUrl + "/api/tags",
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      new Notice("Ollama is running.");
-    } catch (error) {
-      new Notice(
-        "Ollama is not running or the URL is incorrect. Error: " + error,
-      );
-    }
   }
 
   // Loads the setting inputs for a single command to allow for editing/saving
@@ -289,31 +272,43 @@ export class OllamaSettingTab extends PluginSettingTab {
 
   // Calls the Ollama /api/tags endpoint to get the list of installed models
   // If Ollama is not running/URL is incorrect, an error is thrown.
-  private loadAvailableModels() {
+  private reloadAvailableModels(manualRefresh: boolean = false) {
     requestUrl({
       url: this.plugin.settings.ollamaUrl + "/api/tags",
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-    }).then((response) => {
-      const models: string[] = response.json.models.map(
-        (model: { name: string }) => model.name.replace(":latest", ""),
-      );
-      this.availableModels = models.reduce(
-        (record, model) => {
-          record[model] = model;
-          return record;
-        },
-        {} as Record<string, string>,
-      );
-      // availableModels is stored as a Record<string, string> because that's what addDropdown takes as options
+    })
+      .then((response) => {
+        const models: string[] = response.json.models.map(
+          (model: { name: string }) => model.name.replace(":latest", ""),
+        );
+        this.availableModels = models.reduce(
+          (record, model) => {
+            record[model] = model;
+            return record;
+          },
+          {} as Record<string, string>,
+        );
+        // availableModels is stored as a Record<string, string> because that's what addDropdown takes as options
 
-      this.availableModelsAndDefault = {
-        Default: "Default",
-        ...this.availableModels,
-      };
-    });
+        this.availableModelsAndDefault = {
+          Default: "Default",
+          ...this.availableModels,
+        };
+
+        if (manualRefresh) {
+          new Notice("Ollama is running. Model list is refreshed.");
+        }
+      })
+      .catch((error) => {
+        if (manualRefresh) {
+          new Notice(
+            "Ollama is not running or the URL is incorrect. Error: " + error,
+          );
+        }
+      });
   }
 
   // Save handlers
